@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A simple weather application">
+  <meta name="keywords" content="weather, forecast, city">
+  <meta name="author" content="Your Name">
+  <title>Weather Application</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="weather-app">
+    <div class="weather-container">
+      <h1>Weather App</h1>
+      <div class="search-box">
+        <input type="text" id="city-input" placeholder="Enter city name" />
+        <button id="search-btn">Search</button>
+      </div>
+      <div id="weather-info" class="weather-info">
+        <h2 id="city-name">City Name</h2>
+        <p id="temperature">Temperature: --°C</p>
+        <p id="description">Condition: --</p>
+        <p id="humidity">Humidity: --%</p>
+        <p id="wind-speed">Wind Speed: -- m/s</p>
+        <div id="weather-icon"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(to right, #74ebd5, #ACB6E5);
+  }
+
+  .weather-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+
+  .search-box input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+  .search-box button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .weather-info {
+    text-align: center;
+    width: 100%;
+  }
+
+  #weather-icon {
+    margin: 10px 0;
+    font-size: 50px;
+  }
+
+  @media (max-width: 600px) {
+    .weather-app {
+      width: 100%;
+      padding: 10px;
+    }
+
+    .search-box {
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .search-box input, .search-box button {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  const searchBtn = document.getElementById('search-btn');
+  const cityInput = document.getElementById('city-input');
+  const cityName = document.getElementById('city-name');
+  const temperature = document.getElementById('temperature');
+  const description = document.getElementById('description');
+  const humidity = document.getElementById('humidity');
+  const windSpeed = document.getElementById('wind-speed');
+  const weatherIcon = document.getElementById('weather-icon');
+
+  const API_KEY = 'your_api_key'; // Replace with your OpenWeather API key
+
+  searchBtn.addEventListener('click', () => {
+    const city = cityInput.value;
+    if (city) {
+      fetchWeather(city);
+    }
+  });
+
+  async function fetchWeather(city) {
+    try {
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`
+      );
+      const data = await response.json();
+
+      cityName.textContent = data.name;
+      temperature.textContent = `Temperature: ${data.main.temp}°C`;
+      description.textContent = `Condition: ${data.weather[0].description}`;
+      humidity.textContent = `Humidity: ${data.main.humidity}%`;
+      windSpeed.textContent = `Wind Speed: ${data.wind.speed} m/s`;
+
+      const icon = data.weather[0].icon;
+      weatherIcon.innerHTML = `<img src="http://openweathermap.org/img/wn/${icon}.png" alt="weather icon">`;
+
+      // Change background based on weather condition
+      const condition = data.weather[0].main.toLowerCase();
+      changeBackground(condition);
+    } catch (error) {
+      alert('City not found!');
+    }
+  }
+
+  function changeBackground(condition) {
+    const body = document.body;
+    if (condition.includes('rain')) {
+      body.style.background = 'linear-gradient(to right, #74ebd5, #ACB6E5)';
+    } else if (condition.includes('clear')) {
+      body.style.background = 'linear-gradient(to right, #f5af19, #f12711)';
+    } else if (condition.includes('cloud')) {
+      body.style.background = 'linear-gradient(to right, #8e9eab, #eef2f3)';
+    } else if (condition.includes('snow')) {
+      body.style.background = 'linear-gradient(to right, #e6e9f0, #eef1f5)';
+    } else {
+      body.style.background = 'linear-gradient(to right, #74ebd5, #ACB6E5)';
+    }
+  }
+</script>
